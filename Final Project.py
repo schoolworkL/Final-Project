@@ -16,16 +16,20 @@ class Scrape(tk.Tk):
         print(url)
         r = requests.get(url)
         soup = BeautifulSoup(r.content, 'html.parser')
-        rows = soup.select('shreddit-app dsa-transparency-modal-provider div div div main shreddit-post h1')
-        print(soup)
+        rows = soup.select('html body shreddit-app dsa-transparency-modal-provider div div div main shreddit-post h1')
+        title = rows[0].text.strip()
+        print(title)
+        return title
+
+
 
     def search(self):
         search_bar = tk.Entry()
         search_bar.pack()
+        text_2 = StringVar()
         tk.Button(text='Press to Search', command=lambda: Scrape.checker(self, search_bar.get())).pack()
+        #tk.Label(textvariable=text).pack()
 
-    def scrapper(self, url):
-        result = 'to be coded'
 
 
 Scrape().mainloop()
