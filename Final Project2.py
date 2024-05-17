@@ -17,29 +17,37 @@ class Scrape(tk.Tk):
         print(url)
         r = requests.get(url)
         soup = BeautifulSoup(r.content, 'html.parser')
-        rows = soup.select('html body div div')
+        rows = soup.find_all('div', {"class": "top-matter"})
+        #print(r)
         #print(rows)
         for i in rows:
-            title = i.select('div div div p a')
-            print(title)
-            #title_r = title[0]
-            lst.append(title)
+            try:
+                #title = i.select.('div div div p a').text.strip()
+                #print(title)
+                #title_r = title[0]
+                lst.append(i.find('p', {"class": "title"}).text)
+            except:
+                pass
 
         print(lst)
-        #title = rows[0]
-        #title2 = title.select_one('.linklisting')
-        #print(title2)
-        #return title
 
 
+        results = Toplevel(self)
+        heading = results.title('Front of Reddit')
+        for i in lst:
+            text_2 = StringVar()
+            text_2.set(i)
+            print(i)
+            text = Label(results, textvariable=text_2)
+            text.pack()
 
     def search(self):
         search_bar = tk.Entry()
         search_bar.pack()
         text_2 = StringVar()
-        tk.Button(text='Press to Search', command=lambda: Scrape.checker(self, 'https://old.reddit.com/')).pack()
-        #tk.Label(textvariable=text).pack()
+        tk.Button(text="Reddit", command=lambda: Scrape.checker(self, 'https://old.reddit.com/')).pack()
 
+        #tk.Label(textvariable=text).pack()
 
 
 Scrape().mainloop()
