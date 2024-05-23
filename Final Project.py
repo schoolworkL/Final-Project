@@ -42,21 +42,23 @@ class Scrape(tk.Tk):
 
             # Check base case
             if high >= low:
-                #print(x)
 
                 mid = (high + low) // 2
 
                 # If element is present at the middle itself
-                if (str(arr[mid][0])+str(arr[mid][1])+' '+str(arr[mid][2])) == x:
+                if (str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2])) == x:
+                    #print(str(arr[mid][0])+str(arr[mid][1])+' '+str(arr[mid][2]))
                     return mid
 
                 # If element is smaller than mid, then it can only
                 # be present in left subarray
-                elif (str(arr[mid][0])+str(arr[mid][1])+' '+str(arr[mid][2])) > x:
+                elif (str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2])) > x:
+                    #print(str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2]))
                     return binary_search(arr, low, mid - 1, x)
 
                 # Else the element can only be present in right subarray
                 else:
+                    #print(str(arr[mid][0]) + str(arr[mid][1]) + ' ' + str(arr[mid][2]))
                     return binary_search(arr, mid + 1, high, x)
 
             else:
@@ -65,9 +67,7 @@ class Scrape(tk.Tk):
 
         lst = sorter(lst)
         # Function call
-        #print(lst)
         result = binary_search(lst, 0, len(lst) - 1, str(button.cget("text")).strip())
-
 
         if result != -1:
             print("Element is present at index", str(result))
@@ -97,7 +97,6 @@ class Scrape(tk.Tk):
                     lst[count].append(f"\n{tagline}")
                     lst[count].append(comments)
                     lst[count].append(page_url)
-                    #lst_2.append(tagline.split())
                     count += 1
                 except:
                     pass
@@ -110,24 +109,47 @@ class Scrape(tk.Tk):
                 break
 
         results = Toplevel(self)
+        results.geometry('600x500')
         heading = results.title('Front of Reddit')
+
+        m_canvas = Canvas(results)
+        m_canvas.config(width=600, height=500)
+
+        m_canvas.config(scrollregion=(0, 0, 300, 2700))
+
+        y_axis = Scrollbar(results)
+        y_axis.config(command=m_canvas.yview)
+
+        m_canvas.config(yscrollcommand=y_axis.set)
+        y_axis.pack(side=RIGHT, fill=Y)
+        m_canvas.pack(side=LEFT, expand=YES, fill=BOTH)
         counter = 0
-        button_list = []
+        button_heights = 0
+        number_of_canvas_frames = 0
         for i in lst:
             text_2 = StringVar()
-            text_2.set(i[0] + i[1] + ' ' + i[2])
-            text_3 = IntVar()
-            text_3.set(counter)
-            button = Button(results, textvariable=text_2, highlightthickness=0, bd=0, )
+            text_2.set(f'{i[0]}\n{i[1]}\n{i[2]}')
+            #main_frame = Frame(results, highlightthickness=2, bd=10, highlightbackground='red')
+            frame_b = Frame(results, bd=2, relief=SUNKEN)
+            button = Button(frame_b, textvariable=text_2, highlightthickness=0, bd=0, wraplength=500, width=75)
             button.config(
                 command=lambda button=button: Scrape.button_pressed(button, lst))  #Scrape.open_posts(self, lst,)
+
             button.pack()
+
+            m_canvas.create_window(20, button_heights, anchor=NW, window=frame_b)
             counter += 1
+            number_of_canvas_frames += 1
+            m_canvas.update()
+            button_heights += frame_b.winfo_reqheight()
+            m_canvas.config(scrollregion=(0, 0, 300, button_heights))
+            print(frame_b.winfo_height())
+            #frame_b.pack()
+
+        #canvas.config(yscrollcommand=scroll_bar.set)
+        #canvas.bind('<configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     def search(self):
-        search_bar = tk.Entry()
-        search_bar.pack()
-        text_2 = StringVar()
         tk.Button(text="Reddit", command=lambda: Scrape.checker(self, 'https://old.reddit.com/')).pack()
 
         #tk.Label(textvariable=text).pack()
