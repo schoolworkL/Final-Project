@@ -23,51 +23,65 @@ class Scrape(tk.Tk):
         r, soup = Scrape.read_reddit(self, data[value][3])
         #print(page)
 
-    def button_pressed(button, lst):
-        # `button.cget("text")` gets text attribute of the button
-        print("Button text =", button.cget("text"))
+    def binary_search(arr, low, high, x):
 
-        def sorter(lst):
+        # Check base case
+        if high >= low:
+
+            mid = (high + low) // 2
+
+            # If element is present at the middle itself
+            if (str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2])) == x:
+                # print(str(arr[mid][0])+str(arr[mid][1])+' '+str(arr[mid][2]))
+                return mid
+
+            # If element is smaller than mid, then it can only
+            # be present in left subarray
+            elif (str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2])) > x:
+                # print(str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2]))
+                return Scrape.binary_search(arr, low, mid - 1, x)
+
+            # Else the element can only be present in right subarray
+            else:
+                # print(str(arr[mid][0]) + str(arr[mid][1]) + ' ' + str(arr[mid][2]))
+                return Scrape.binary_search(arr, mid + 1, high, x)
+
+        else:
+            # Element is not present in the array
+            return -1
+
+    def sorter(lst, direction, i_value):
+        # print(lst)
+        print(lst)
+        if direction == 1:  # least to greatest sort
             for i in range(len(lst) - 1, 0, -1):  # iterates through the list backwards
                 value = 0  # variable to the second value
                 for j in range(1, i + 1):  # iterates through the list using i+1 as the end range
-                    if lst[j][0] > lst[value][
-                        0]:  # checks if the second value in the tuple is greater than the second value in the second
+                    if lst[j][i_value] > lst[value][
+                        i_value]:  # checks if the second value in the tuple is greater than the second value in the second
+                        # tuple
+                        value = j  # sets value to equal j
+                lst[j], lst[value] = lst[value], lst[j]  # switches the values of list[j] and list[value]
+            return lst  # returns the sorted list to the main
+        else:  # greatest to the least sort
+            for i in range(len(lst) - 1, 0, -1):  # iterates through the list backwards
+                value = 0  # variable to the second value
+                for j in range(1, i + 1):  # iterates through the list using i+1 as the end range
+                    if lst[j][i_value] < lst[value][
+                        i_value]:  # checks if the second value in the tuple is greater than the second value in the second
                         # tuple
                         value = j  # sets value to equal j
                 lst[j], lst[value] = lst[value], lst[j]  # switches the values of list[j] and list[value]
             return lst  # returns the sorted list to the main
 
-        def binary_search(arr, low, high, x):
-
-            # Check base case
-            if high >= low:
-
-                mid = (high + low) // 2
-
-                # If element is present at the middle itself
-                if (str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2])) == x:
-                    #print(str(arr[mid][0])+str(arr[mid][1])+' '+str(arr[mid][2]))
-                    return mid
-
-                # If element is smaller than mid, then it can only
-                # be present in left subarray
-                elif (str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2])) > x:
-                    #print(str(arr[mid][0]) + '\n' + str(arr[mid][1]) + '\n' + str(arr[mid][2]))
-                    return binary_search(arr, low, mid - 1, x)
-
-                # Else the element can only be present in right subarray
-                else:
-                    #print(str(arr[mid][0]) + str(arr[mid][1]) + ' ' + str(arr[mid][2]))
-                    return binary_search(arr, mid + 1, high, x)
-
-            else:
-                # Element is not present in the array
-                return -1
-
-        lst = sorter(lst)
+    def sort_button(data, choice):
+        print("hi")
+    def button_pressed(button, lst):
+        # `button.cget("text")` gets text attribute of the button
+        print("Button text =", button.cget("text"))
+        lst = Scrape.sorter(lst, 1, 0) # sorts list least to greatest
         # Function call
-        result = binary_search(lst, 0, len(lst) - 1, str(button.cget("text")).strip())
+        result = Scrape.binary_search(lst, 0, len(lst) - 1, str(button.cget("text")).strip())
 
         if result != -1:
             print("Element is present at index", str(result))
@@ -76,7 +90,7 @@ class Scrape(tk.Tk):
             print("Element is not present in array")
 
     def checker(self, url):
-        lst = []
+        Scrape.lst = [[]]
         lst_2 = []
         count = 0
         r, soup = Scrape.read_reddit(self, url)
@@ -85,32 +99,40 @@ class Scrape(tk.Tk):
         while True:
             for i in rows:
                 try:
-                    lst.append([])
+
                     tagline = i.find("p", {"class": "tagline"}).text.strip()
                     comments = i.find("li", {"class": "first"}).text.strip()
                     page = i.find("a", {"class": "bylink"})
                     page_url = page["href"]
-                    print(tagline)
-                    print(comments)
-                    print(page_url)
-                    lst[count].append(i.find("p", {"class": "title"}).text.strip())
-                    lst[count].append(f"\n{tagline}")
-                    lst[count].append(comments)
-                    lst[count].append(page_url)
+                    likes = i.find("div", {"class": "score"})
+                    exact_likes = likes["title"]
+                    #print(tagline)
+                    #print(comments)
+                    #print(page_url)
+                    Scrape.lst[count].append(i.find("p", {"class": "title"}).text.strip())
+                    Scrape.lst[count].append(f"\n{tagline}")
+                    Scrape.lst[count].append(comments)
+                    Scrape.lst[count].append(page_url)
+                    Scrape.lst[count].append(exact_likes)
                     count += 1
+                    Scrape.lst.append([])
                 except:
                     pass
+
             # ensures the window always pulls up. Sometimes code can't get data fast enough for the list.
-            if not lst:
-                print(lst)
+            if not Scrape.lst:
+                print(Scrape.lst)
                 time.sleep(.25)
                 return Scrape.checker(self, url)
             else:
+                Scrape.lst = [item for item in Scrape.lst if item != []]
                 break
+
 
         results = Toplevel(self)
         results.geometry('600x500')
         heading = results.title('Front of Reddit')
+
 
         m_canvas = Canvas(results)
         m_canvas.config(width=600, height=500)
@@ -123,31 +145,45 @@ class Scrape(tk.Tk):
         m_canvas.config(yscrollcommand=y_axis.set)
         y_axis.pack(side=RIGHT, fill=Y)
         m_canvas.pack(side=LEFT, expand=YES, fill=BOTH)
+        top_frame = Frame(results)
+        sort_options = Label(top_frame, text="Sort by:")
+        option_1 = Button(top_frame, text="Alphabetical", command=Scrape.sort_button)
+        option_1.config(
+            command=lambda button=option_1: Scrape.sort_button(option_1, Scrape.lst))
+        option_2 = Button(top_frame, text="Upvotes", command=Scrape.sort_button)
+        option_2.config(
+            command=lambda button=option_2: Scrape.sort_button(option_2, Scrape.lst))
+        option_3 = Button(top_frame, text="Comments", command=Scrape.sort_button)
+        option_3.config(
+            command=lambda button=option_3: Scrape.sort_button(option_3, Scrape.lst))
+        m_canvas.create_window(20, option_1.winfo_reqheight(), anchor=NW, window=top_frame)
+        option_1.pack(side=LEFT)
+        option_2.pack(side=LEFT)
+        option_3.pack(side=LEFT)
+
         counter = 0
-        button_heights = 0
+        button_heights = option_1.winfo_reqheight()+25
         number_of_canvas_frames = 0
-        for i in lst:
+        print(Scrape.lst)
+        for i in Scrape.lst:
             text_2 = StringVar()
+            #print(Scrape.lst)
             text_2.set(f'{i[0]}\n{i[1]}\n{i[2]}')
             #main_frame = Frame(results, highlightthickness=2, bd=10, highlightbackground='red')
             frame_b = Frame(results, bd=2, relief=SUNKEN)
             button = Button(frame_b, textvariable=text_2, highlightthickness=0, bd=0, wraplength=500, width=75)
             button.config(
-                command=lambda button=button: Scrape.button_pressed(button, lst))  #Scrape.open_posts(self, lst,)
-
+                command=lambda button=button: Scrape.button_pressed(button, Scrape.lst))  #Scrape.open_posts(self, lst,)
+            upvotes = Label(frame_b, text=f"{i[-1]} Upvotes", fg="orange")
             button.pack()
-
+            upvotes.pack()
             m_canvas.create_window(20, button_heights, anchor=NW, window=frame_b)
             counter += 1
             number_of_canvas_frames += 1
             m_canvas.update()
             button_heights += frame_b.winfo_reqheight()
             m_canvas.config(scrollregion=(0, 0, 300, button_heights))
-            print(frame_b.winfo_height())
-            #frame_b.pack()
 
-        #canvas.config(yscrollcommand=scroll_bar.set)
-        #canvas.bind('<configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     def search(self):
         tk.Button(text="Reddit", command=lambda: Scrape.checker(self, 'https://old.reddit.com/')).pack()
