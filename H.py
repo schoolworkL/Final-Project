@@ -14,6 +14,7 @@ class Scrape(tk.Tk):
         self.geometry("400x400")
         self.search()
         self.tracker = 0
+        self.selection = 0
 
 
     def read_reddit(self, url):
@@ -26,7 +27,7 @@ class Scrape(tk.Tk):
         r, soup = Scrape.read_reddit(self, data[value][3])
         #print(page)
 
-    def binary_search(arr, low, high, x):
+    def binary_search(arr, low, high, x, ):
 
         # Check base case
         if high >= low:
@@ -89,12 +90,12 @@ class Scrape(tk.Tk):
             #print(self.tracker)
             return Scrape.sorter(self, data, 0, i_value)
 
-    def button_pressed(self, button, lst):
+    def button_pressed(self, button, lst, selection):
         # `button.cget("text")` gets text attribute of the button
         print("Button text =", button.cget("text"))
-
+        options = str(button.cget("text")).strip().splitlines()
         # Function call
-        result = Scrape.binary_search(lst, 0, len(lst) - 1, str(button.cget("text")).strip())
+        result = Scrape.binary_search(lst, 0, len(lst) - 1, options, selection)
         print(result)
 
         if result != -1:
@@ -148,6 +149,8 @@ class Scrape(tk.Tk):
             self.lst[i][2] = l[0]
             self.lst[i].insert(3, l[1])
             print(self.lst[i][2])
+
+
         Scrape.results = Toplevel(self)
         Scrape.results.geometry('600x500')
         heading = Scrape.results.title('Front of Reddit')
@@ -191,7 +194,7 @@ class Scrape(tk.Tk):
             frame_b = Frame(Scrape.results, bd=2, relief=SUNKEN)
             button = Button(frame_b, textvariable=text_2, highlightthickness=0, bd=0, wraplength=500, width=75)
             button.config(
-                command=lambda button=button: Scrape.button_pressed(self, button, self.lst))  #Scrape.open_posts(self, lst,)
+                command=lambda button=button: Scrape.button_pressed(self, button, self.lst, selection))  #Scrape.open_posts(self, lst,)
             upvotes = Label(frame_b, text=f"{i[-1]} Upvotes", fg="orange")
             button.pack()
             upvotes.pack()
