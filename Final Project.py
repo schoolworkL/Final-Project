@@ -10,7 +10,8 @@ class Scrape(tk.Tk):
         super().__init__()
         frame = tk.Frame(master=self)
         frame.pack()
-        self.lst = [[]]
+        self.lst = []
+        self.comments = []
         self.geometry("400x400")
         self.search()
         self.tracker = 0
@@ -172,7 +173,106 @@ class Scrape(tk.Tk):
             #for i in self.lst:
             #    print(i[2])
             Scrape.new_window(self)
+    def get_comments(self, index):
+        #print(self.lst)
+        self.comments = [[]]
+        r, soup = Scrape.read_reddit(self, self.lst[index][4])
+        #print(self.lst[index][4])
+        rows = soup.find_all('div', {"class": "sitetable"})
+        #print(rows)
+        count = 0
+        while True:
+            for i in rows:
+                try:
+                    username = i.find("a", {"class": "author"}).text.strip()
 
+                    text = i.find("div", {"class": "md"}).text.strip()
+
+                    #likes = i.find("div", {"class": "midcol"})
+                    #print(likes)
+
+                    self.comments[count].append(username)
+                    self.comments[count].append(text)
+                    self.comments.append([])
+                    count += 1
+
+                    tagline = i.find("p", {"class": "tagline"}).text.strip()
+                    comments = i.find("li", {"class": "first"}).text.strip()
+                    page = i.find("a", {"class": "bylink"})
+                    page_url = page["href"]
+                    likes = i.find("div", {"class": "score"})
+                    exact_likes = likes["title"]
+                    #print(tagline)
+                    #print(comments)
+                    #print(page_url)
+                    #self.lst[count].append(i.find("p", {"class": "title"}).text.strip())
+                    #self.lst[count].append(f"\n{tagline}")
+                    #self.lst[count].append(comments)
+                    #self.lst[count].append(page_url)
+                    #self.lst[count].append(exact_likes)
+                    #count += 1
+                    #self.lst.append([])
+                except:
+                    pass
+            if not self.comments:
+                print(self.comments)
+                time.sleep(.5)
+                return Scrape.checker(self, index)
+            else:
+                self.comments = [item for item in self.comments if item != []]
+                # if not self.lst:
+                print(self.comments)
+                # return Scrape.checker(self, url)
+
+                print(self.comments)
+                self.comments = [item for item in self.comments if item != []]
+                break
+
+            break
+        self.comment_window = Toplevel(self)
+        Scrape.comment_new_window(self)
+    def comment_new_window(self):
+        self.comment_window.geometry('600x500')
+        heading = self.comment_window.title('Front of Reddit')
+
+        self.m_canvas = Canvas(self.comment_window)
+        self.m_canvas.config(width=600, height=500)
+
+        self.m_canvas.config(scrollregion=(0, 0, 300, 2700))
+
+        y_axis = Scrollbar(self.comment_window)
+        y_axis.config(command=self.m_canvas.yview)
+
+        self.m_canvas.config(yscrollcommand=y_axis.set)
+        y_axis.pack(side=RIGHT, fill=Y)
+        self.m_canvas.pack(side=LEFT, expand=YES, fill=BOTH)
+        top_frame = Frame(self.comment_window)
+        sort_options = Label(top_frame, text="Sort by:")
+
+        counter = 0
+        button_heights = 25
+        number_of_canvas_frames = 0
+        #print(self.comments)
+        for i in self.comments:
+            text_2 = StringVar()
+            # print(self.comments)
+            text_2.set(f'{i[0]}\n"{i[1]}"')
+            # print(i[3])
+            # main_frame = Frame(comment_window, highlightthickness=2, bd=10, highlightbackground='red')
+            frame_b = Frame(self.comment_window, bd=2, relief=SUNKEN)
+            button = Button(frame_b, textvariable=text_2, highlightthickness=0, bd=0, wraplength=500, width=75)
+            button.config(
+                command=lambda button=button: Scrape.button_pressed(self, button,
+                                                                    self.comments))  # Scrape.open_posts(self, lst,)
+            # upvotes = Label(frame_b, text=f"{i[-1]} Upvotes", fg="orange")
+            button.pack()
+            # upvotes.pack()
+            self.m_canvas.create_window(20, button_heights, anchor=NW, window=frame_b)
+            counter += 1
+            number_of_canvas_frames += 1
+            self.m_canvas.update()
+            button_heights += frame_b.winfo_reqheight()
+            self.m_canvas.config(scrollregion=(0, 0, 300, button_heights))
     def button_pressed(self, button, lst):
         options = (button.cget("text")).splitlines()
         #print(options)
@@ -199,6 +299,7 @@ class Scrape(tk.Tk):
         if result != -1:
             print("Element is present at index", str(result))
             #print(lst[result])
+            comment_display = Scrape.get_comments(self, result)
         else:
             #for i in self.lst:
             #print(i[-1])
@@ -262,8 +363,7 @@ class Scrape(tk.Tk):
             self.m_canvas.config(scrollregion=(0, 0, 300, button_heights))
 
     def checker(self, url):
-
-        lst_2 = []
+        self.lst.append([])
         count = 0
         r, soup = Scrape.read_reddit(self, url)
         rows = soup.find_all('div', {"class": "link"})
@@ -294,29 +394,34 @@ class Scrape(tk.Tk):
             # ensures the window always pulls up. Sometimes code can't get data fast enough for the list.
             if not self.lst:
                 print(self.lst)
-                time.sleep(.25)
+                time.sleep(.5)
+                self.lst.clear()
                 return Scrape.checker(self, url)
             else:
                 self.lst = [item for item in self.lst if item != []]
-                if not self.lst:
-                    return Scrape.checker(self, url)
+                #if not self.lst:
+                #print(self.lst)
+                    #return Scrape.checker(self, url)
 
                 print(self.lst)
-                self.lst = [item for item in self.lst if item != []]
+                #self.lst = [item for item in self.lst if item != []]
                 break
-
-        self.lst = Scrape.sorter(self, self.lst, 1, 0)  # sorts list least to greatest
         self.lst = Scrape.sorter(self, self.lst, 0, 0)  # sorts list least to greatest
+        #self.lst = Scrape.sorter(self, self.lst, 1, 0)  # sorts list least to greatest
+
         for i in range(len(self.lst)):
             l = str(self.lst[i][2]).split()
             self.lst[i][2] = l[0]
             self.lst[i].insert(3, l[1])
             #print(self.lst[i][2])
+
         self.results = Toplevel(self)
         Scrape.new_window(self)
 
     def search(self):
+
         tk.Button(text="Reddit", command=lambda: Scrape.checker(self, 'https://old.reddit.com/')).pack()
+
 
         #tk.Label(textvariable=text).pack()
 
