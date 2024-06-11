@@ -16,7 +16,7 @@ class Scrape(tk.Tk):
         self.tracker = 0
         self.selection = 0
         self.setting = 0
-        self.click_1 = 1
+        self.click_1 = 0
         self.click_2 = 0
         self.click_3 = 0
         self.check = 0
@@ -70,7 +70,7 @@ class Scrape(tk.Tk):
 
                 # If element is smaller than mid, then it can only
                 # be present in left subarray
-                elif  x[setting] > self.lst[mid][setting]:
+                elif x[setting] > self.lst[mid][setting]:
                     return Scrape.binary_search(self, low, mid - 1, x, setting)
 
                 # Else the element can only be present in right subarray
@@ -109,6 +109,8 @@ class Scrape(tk.Tk):
 
     def sort_button(self, data, i_value, option):
         value = str(option.cget("text"))
+        for widget in self.results.winfo_children():
+            widget.destroy()
         if value == "Alphabetical":
             self.setting = 0
             self.click_1 += 1
@@ -130,40 +132,47 @@ class Scrape(tk.Tk):
             self.check = 0
             self.lst = Scrape.sorter(self, data, 0, self.setting)
 
-            for i in self.lst:
-                print(i)
-            print(self.lst)
+            #for i in self.lst:
+            #    print(i)
+            #print(self.lst)
+            Scrape.new_window(self)
         elif self.click_1 % 2 > 0:
             print(f"click 1 : {self.click_1}")
             self.check = 1
             self.lst = Scrape.sorter(self, data, 1, self.setting)
-            for i in self.lst:
-                print(i)
-            print(self.lst)
+            #for i in self.lst:
+            #    print(i)
+            #print(self.lst)
+            Scrape.new_window(self)
         elif self.click_2 % 2 == 0 and not self.click_2 == 0:
             print(f"click 2 : {self.click_2}")
             self.check = 0
             self.lst = Scrape.sorter(self, data, 0, self.setting)
-            for i in self.lst:
-                print(i[-1])
+            #for i in self.lst:
+            #    print(i[-1])
+            Scrape.new_window(self)
         elif self.click_2 % 2 > 0:
             print(f"click 2 : {self.click_2}")
             self.check = 1
             self.lst = Scrape.sorter(self, data, 1, self.setting)
-            for i in self.lst:
-                print(i[-1])
+            #for i in self.lst:
+            #    print(i[-1])
+            Scrape.new_window(self)
         elif self.click_3 % 2 == 0 and not self.click_3 == 0:
             print(f"click 3 : {self.click_3}")
             self.check = 0
             self.lst = Scrape.sorter(self, data, 0, self.setting)
-            for i in self.lst:
-                print(i[2])
+            #for i in self.lst:
+            #    print(i[2])
+            Scrape.new_window(self)
         else:
             print(f"click 3 : {self.click_3}")
             self.check = 1
             self.lst = Scrape.sorter(self, data, 1, self.setting)
-            for i in self.lst:
-                print(i[2])
+            #for i in self.lst:
+            #    print(i[2])
+            Scrape.new_window(self)
+
     def button_pressed(self, button, lst):
         options = (button.cget("text")).splitlines()
         #print(options)
@@ -175,7 +184,7 @@ class Scrape(tk.Tk):
         options_updated[1] = ' '.join(options_updated[1])
         options_updated[2] = ' '.join(options_updated[2])
         options_updated[3] = ' '.join(options_updated[3])
-        print(options_updated)
+        #print(options_updated)
         #print(self.setting)
         #options_updated[2] = int(options_updated[2])
         #options_updated[-1]
@@ -192,27 +201,26 @@ class Scrape(tk.Tk):
             #print(lst[result])
         else:
             #for i in self.lst:
-                #print(i[-1])
+            #print(i[-1])
             print("Element is not present in array")
 
     def new_window(self):
 
-        Scrape.results = Toplevel(self)
-        Scrape.results.geometry('600x500')
-        heading = Scrape.results.title('Front of Reddit')
+        self.results.geometry('600x500')
+        heading = self.results.title('Front of Reddit')
 
-        m_canvas = Canvas(Scrape.results)
-        m_canvas.config(width=600, height=500)
+        self.m_canvas = Canvas(self.results)
+        self.m_canvas.config(width=600, height=500)
 
-        m_canvas.config(scrollregion=(0, 0, 300, 2700))
+        self.m_canvas.config(scrollregion=(0, 0, 300, 2700))
 
-        y_axis = Scrollbar(Scrape.results)
-        y_axis.config(command=m_canvas.yview)
+        y_axis = Scrollbar(self.results)
+        y_axis.config(command=self.m_canvas.yview)
 
-        m_canvas.config(yscrollcommand=y_axis.set)
+        self.m_canvas.config(yscrollcommand=y_axis.set)
         y_axis.pack(side=RIGHT, fill=Y)
-        m_canvas.pack(side=LEFT, expand=YES, fill=BOTH)
-        top_frame = Frame(Scrape.results)
+        self.m_canvas.pack(side=LEFT, expand=YES, fill=BOTH)
+        top_frame = Frame(self.results)
         sort_options = Label(top_frame, text="Sort by:")
         option_1 = Button(top_frame, text="Alphabetical")
         option_1.config(
@@ -223,7 +231,7 @@ class Scrape(tk.Tk):
         option_3 = Button(top_frame, text="Comments")
         option_3.config(
             command=lambda button=option_3: Scrape.sort_button(self, self.lst, 2, button))
-        m_canvas.create_window(20, option_1.winfo_reqheight(), anchor=NW, window=top_frame)
+        self.m_canvas.create_window(20, option_1.winfo_reqheight(), anchor=NW, window=top_frame)
         option_1.pack(side=LEFT)
         option_2.pack(side=LEFT)
         option_3.pack(side=LEFT)
@@ -238,7 +246,7 @@ class Scrape(tk.Tk):
             text_2.set(f'{i[0]}\n{i[1]}\n{i[2]} {i[3]}\n{i[-1]} Upvotes')
             # print(i[3])
             # main_frame = Frame(results, highlightthickness=2, bd=10, highlightbackground='red')
-            frame_b = Frame(Scrape.results, bd=2, relief=SUNKEN)
+            frame_b = Frame(self.results, bd=2, relief=SUNKEN)
             button = Button(frame_b, textvariable=text_2, highlightthickness=0, bd=0, wraplength=500, width=75)
             button.config(
                 command=lambda button=button: Scrape.button_pressed(self, button,
@@ -246,12 +254,13 @@ class Scrape(tk.Tk):
             # upvotes = Label(frame_b, text=f"{i[-1]} Upvotes", fg="orange")
             button.pack()
             # upvotes.pack()
-            m_canvas.create_window(20, button_heights, anchor=NW, window=frame_b)
+            self.m_canvas.create_window(20, button_heights, anchor=NW, window=frame_b)
             counter += 1
             number_of_canvas_frames += 1
-            m_canvas.update()
+            self.m_canvas.update()
             button_heights += frame_b.winfo_reqheight()
-            m_canvas.config(scrollregion=(0, 0, 300, button_heights))
+            self.m_canvas.config(scrollregion=(0, 0, 300, button_heights))
+
     def checker(self, url):
 
         lst_2 = []
@@ -289,16 +298,22 @@ class Scrape(tk.Tk):
                 return Scrape.checker(self, url)
             else:
                 self.lst = [item for item in self.lst if item != []]
+                if not self.lst:
+                    return Scrape.checker(self, url)
+
+                print(self.lst)
+                self.lst = [item for item in self.lst if item != []]
                 break
 
         self.lst = Scrape.sorter(self, self.lst, 1, 0)  # sorts list least to greatest
+        self.lst = Scrape.sorter(self, self.lst, 0, 0)  # sorts list least to greatest
         for i in range(len(self.lst)):
             l = str(self.lst[i][2]).split()
             self.lst[i][2] = l[0]
             self.lst[i].insert(3, l[1])
             #print(self.lst[i][2])
+        self.results = Toplevel(self)
         Scrape.new_window(self)
-
 
     def search(self):
         tk.Button(text="Reddit", command=lambda: Scrape.checker(self, 'https://old.reddit.com/')).pack()
