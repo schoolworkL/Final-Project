@@ -6,6 +6,7 @@ import time
 
 
 class Scrape(tk.Tk):
+    # The holders of the self functionality and of all very important variables, including the starting frame
     def __init__(self):
         super().__init__()
         frame = tk.Frame(master=self)
@@ -22,66 +23,87 @@ class Scrape(tk.Tk):
         self.click_3 = 0
         self.check = 0
 
-
+    # reads from reddits
+    # @param self - holds the self functionality for the class
+    # @param url - holds the reddit url
+    # returns the r and soup variables to the calling function
     def read_reddit(self, url):
-        r = requests.get(url)
-        soup = BeautifulSoup(r.content, 'html.parser')
-        return r, soup
+        r = requests.get(url)  # gets the data from the website
+        soup = BeautifulSoup(r.content, 'html.parser')  # formats the data in r
+        return r, soup  # returns r and soup to the calling function
 
+    # reads in data from the clicked post
+    # @param self - holds the self functionality for the class
+    # @param data - holds the list of values including post urls gathered
+    # @param value - holds the index value of the clicked button
     def open_posts(self, data, value):
         print(value)
-        r, soup = Scrape.read_reddit(self, data[value][3])
+        r, soup = Scrape.read_reddit(self, data[value][3])  # saves the data in r, soup from the read_reddit function
         #print(page)
-
+    # The binary search that can find the location of a post with compatiblity for multiple different sorting methods
+    # @param self - holds tehe self functionality for the class
+    # @param low - holds the lower range of the list
+    # @param high - holds the upper range of the list
+    # @param x - holds the index the binary search is trying to find
+    # @param setting - holds the index depending on how the list is sorted
+    # @return mid - returns the index of the value
+    # @return return Scrape.binary_search(self, low, mid - 1, x, setting) - runs the binary search with new parameters
+    # @return Scrape.binary_search(self, mid + 1, high, x, setting) - reuns the binary search with new parameters
+    # @return -1 - returns a value to determine if the value was found
     def binary_search(self, low, high, x, setting):
         #print(f'hi {x}')
         #print(f'Joe: {setting}')
         # Check base case
         #print(f'option: {x}')
         #print(f'setting {setting}')
-        if self.check == 1:
-            if high >= low:
+        if self.check == 1:  # checks if the list is set to sort greatest to least
+            if high >= low:  # checks if the upper range of the list is greater than the lower range of the list
 
-                mid = (high + low) // 2
+                mid = (high + low) // 2  # determines the middle index value
 
                 # If element is present at the middle itself
-                if self.lst[mid][setting] == x[setting]:
-                    return mid
+                if self.lst[mid][setting] == x[setting]:  # checks if x is at the middle value
+                    return mid  # returns index of the mid
 
                 # If element is smaller than mid, then it can only
                 # be present in left subarray
-                elif self.lst[mid][setting] > x[setting]:
+                elif self.lst[mid][setting] > x[setting]:  # checks if the x[setting] is lesser than the mid[setting]
                     return Scrape.binary_search(self, low, mid - 1, x, setting)
 
                 # Else the element can only be present in right subarray
-                else:
+                else:  # x[setting] is greater the mid[setting] value
                     return Scrape.binary_search(self, mid + 1, high, x, setting)
 
             else:
                 # Element is not present in the array
                 return -1
         else:
-            if high >= low:
+            if high >= low:  # checks if the upper range of the list is greater than the lower range of the list
 
                 mid = (high + low) // 2
 
                 # If element is present at the middle itself
-                if self.lst[mid][setting] == x[setting]:
+                if self.lst[mid][setting] == x[setting]:  # checks if x is at the middle value
                     return mid
 
                 # If element is smaller than mid, then it can only
                 # be present in left subarray
-                elif x[setting] > self.lst[mid][setting]:
+                elif x[setting] > self.lst[mid][setting]:  # checks if the x[setting] is lesser than the mid[setting]
                     return Scrape.binary_search(self, low, mid - 1, x, setting)
 
                 # Else the element can only be present in right subarray
-                else:
+                else:  # x[setting] is greater the mid[setting] value
                     return Scrape.binary_search(self, mid + 1, high, x, setting)
 
             else:
                 # Element is not present in the array
                 return -1
 
+    # sorts the list forwards or in reverse and based on an index value
+    # @param self - holds the self functionality of the class
+    # @param lst - holds the lst (redundant)
+    # @param direction - holds the direction (forward or reverse) the lst will be sorted
+    # @param i_value - holds the index the lst will be sorting around
     def sorter(self, lst, direction, i_value):
         if direction == 1:  # least to greatest sort
             for i in range(len(self.lst) - 1, 0, -1):  # iterates through the list backwards
@@ -94,7 +116,7 @@ class Scrape(tk.Tk):
                 self.lst[j], self.lst[value] = self.lst[value], self.lst[
                     j]  # switches the values of list[j] and list[value]
             # self.lst = lst
-            return self.lst  # returns the sorted list to the main
+            #return self.lst  # returns the sorted list to the main
         else:  # greatest to the least sort
             for i in range(len(self.lst) - 1, 0, -1):  # iterates through the list backwards
                 value = 0  # variable to the second value
@@ -106,73 +128,79 @@ class Scrape(tk.Tk):
                 self.lst[j], self.lst[value] = self.lst[value], self.lst[
                     j]  # switches the values of list[j] and list[value]
             # self.lst = lst
-            return self.lst  # returns the sorted list to the main
+            #return self.lst  # returns the sorted list to the main
 
+    # Determines while sort option is chosen and resorts the list.
+    # @param self - Holds the self functionality of the class
+    # @param data - NEEDS TO BE DELETED (USELESS)
+    # @param i_value - NEEDS TO BE DELETED (useless)
+    # @param option - holds the button
     def sort_button(self, data, i_value, option):
-        value = str(option.cget("text"))
-        for widget in self.results.winfo_children():
-            widget.destroy()
-        if value == "Alphabetical":
-            self.setting = 0
-            self.click_1 += 1
-            self.click_2 = 0
-            self.click_3 = 0
-        elif value == "Upvotes":
-            self.setting = -1
-            self.click_1 = 0
-            self.click_2 += 1
-            self.click_3 = 0
-        else:
-            self.setting = 2
-            self.click_1 = 0
-            self.click_2 = 0
-            self.click_3 += 1
+        value = str(option.cget("text"))  # holds the text of the button
+        for widget in self.results.winfo_children():  # checks each child in the results window
+            widget.destroy()  # destroys the previous displayed frames
+        if value == "Alphabetical":  # checks if "Alphabetical" is the button text
+            self.setting = 0  # index to sort by set to 0
+            self.click_1 += 1  # tracks how many times in a row this option was clicked
+            self.click_2 = 0  # option 2 set to 0 clicks in a row
+            self.click_3 = 0  # option 3 set to 0 clicks in a row
+        elif value == "Upvotes":  # checks if "Upvotes" is the button text
+            self.setting = -1  # index to sort by set to -1
+            self.click_1 = 0  # option 3 set to 0 clicks in a row
+            self.click_2 += 1  # tracks how many times in a row this option was clicked
+            self.click_3 = 0  # option 3 set to 0 clicks in a row
+        else:  # only one other option the text could be (Comments)
+            self.setting = 2  # index to sort by set to 2
+            self.click_1 = 0  # option 1 set to 0 clicks in a row
+            self.click_2 = 0  # option 2 set to 0 clicks in a row
+            self.click_3 += 1  # tracks how many times in a row this option was clicked
 
-        if self.click_1 % 2 == 0 and not self.click_1 == 0:
+        if self.click_1 % 2 == 0 and not self.click_1 == 0:  # checks if buttons has been clicked 2 times and is not the first click
             print(f"click 1 : {self.click_1}")
-            self.check = 0
-            self.lst = Scrape.sorter(self, data, 0, self.setting)
+            self.check = 0  # sets the check to 0
+            self.lst = Scrape.sorter(self, data, 0, self.setting)  # updates self.lst
 
             #for i in self.lst:
             #    print(i)
             #print(self.lst)
-            Scrape.new_window(self)
-        elif self.click_1 % 2 > 0:
+            Scrape.new_window(self)  # creates a new window
+        elif self.click_1 % 2 > 0:  # checks that the remainder of clicks is greater than 1
             print(f"click 1 : {self.click_1}")
-            self.check = 1
-            self.lst = Scrape.sorter(self, data, 1, self.setting)
+            self.check = 1  # sets the check to 1
+            self.lst = Scrape.sorter(self, data, 1, self.setting)  # updates self.lst
             #for i in self.lst:
             #    print(i)
             #print(self.lst)
-            Scrape.new_window(self)
-        elif self.click_2 % 2 == 0 and not self.click_2 == 0:
+            Scrape.new_window(self)  # creates a new window
+        elif self.click_2 % 2 == 0 and not self.click_2 == 0:  # checks if buttons has been clicked 2 times and is not the first click
             print(f"click 2 : {self.click_2}")
-            self.check = 0
-            self.lst = Scrape.sorter(self, data, 0, self.setting)
+            self.check = 0  # sets the check to 0
+            self.lst = Scrape.sorter(self, data, 0, self.setting)  # updates self.lst
             #for i in self.lst:
             #    print(i[-1])
-            Scrape.new_window(self)
-        elif self.click_2 % 2 > 0:
+            Scrape.new_window(self)  # creates a new window
+        elif self.click_2 % 2 > 0:  # checks that the remainder of clicks is greater than 1
             print(f"click 2 : {self.click_2}")
-            self.check = 1
-            self.lst = Scrape.sorter(self, data, 1, self.setting)
+            self.check = 1  # sets the check to 1
+            self.lst = Scrape.sorter(self, data, 1, self.setting)  # updates self.lst
             #for i in self.lst:
             #    print(i[-1])
-            Scrape.new_window(self)
-        elif self.click_3 % 2 == 0 and not self.click_3 == 0:
+            Scrape.new_window(self)  # creates a new window
+        elif self.click_3 % 2 == 0 and not self.click_3 == 0:  # checks if buttons has been clicked 2 times and is not the first click
             print(f"click 3 : {self.click_3}")
-            self.check = 0
-            self.lst = Scrape.sorter(self, data, 0, self.setting)
+            self.check = 0  # sets the check to 0
+            self.lst = Scrape.sorter(self, data, 0, self.setting)  # updates self.lst
             #for i in self.lst:
             #    print(i[2])
-            Scrape.new_window(self)
-        else:
+            Scrape.new_window(self)  # creates a new window
+        else:  # checks that the remainder of clicks is greater than 1
             print(f"click 3 : {self.click_3}")
-            self.check = 1
-            self.lst = Scrape.sorter(self, data, 1, self.setting)
+            self.check = 1  # sets the check to 1
+            self.lst = Scrape.sorter(self, data, 1, self.setting)  # updates self.lst
             #for i in self.lst:
             #    print(i[2])
-            Scrape.new_window(self)
+            Scrape.new_window(self)  # creates a new window
+            
     def get_comments(self, index):
         #print(self.lst)
         self.comments = [[]]
