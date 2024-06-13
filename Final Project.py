@@ -1,3 +1,10 @@
+# Created by: Landon Walker
+# 13/6/2024
+# Read from Reddit Program
+# Version = '0.1'
+# Program Description: Read and display data from reddit using a gui
+
+
 import tkinter as tk
 from tkinter import *
 import requests
@@ -94,7 +101,10 @@ class Scrape(tk.Tk):
             else:
                 # Element is not present in the array
                 return -1
-
+    # sorts the list forwards on in reverse
+    # @param self - holds the self functionality of the class
+    # @param direction - The direction (forward or reverse) to sort the data
+    # @param i_value - The index value to sort by
     def sorter(self, direction, i_value):
         if direction == 1:  # least to greatest sort
             for i in range(len(self.lst) - 1, 0, -1):  # iterates through the list backwards
@@ -177,7 +187,7 @@ class Scrape(tk.Tk):
             self.lst = Scrape.sorter(self, 1, self.setting)  # updates self.lst
             Scrape.new_window(self)  # creates a new window
 
-    #
+    # gets data from posts on reddit
     # @param self - holds the self functionality of the class
     # @param index - holds the index value
     def get_comments(self, index):
@@ -334,7 +344,7 @@ class Scrape(tk.Tk):
             button_heights += frame_b.winfo_reqheight()  # adds the current button height to the total heights
             self.m_canvas.config(scrollregion=(0, 0, 300, button_heights))  # updates the scroll region of the canvas
 
-    #
+    # gets data from reddit
     # @param self - holds the self functionality of the class
     # @param url - holds the reddit url
     # @return Scrape.checker(self, url) - returns the checker function if a value is not present in self.lst
@@ -367,9 +377,9 @@ class Scrape(tk.Tk):
 
             # ensures the window always pulls up. Sometimes code can't get data fast enough for the list.
             if not self.lst:  # checks if self.lst is empty
-                #print(self.lst)
+                print(self.lst)
                 time.sleep(.5)  # halts the program for .5 seconds
-                self.lst.clear()  # clears self.lst
+
                 return Scrape.checker(self, url)  # reruns the current function
             else:
                 self.lst = [item for item in self.lst if item != []]  # deletes empty lists in self.lst
@@ -388,10 +398,14 @@ class Scrape(tk.Tk):
         self.results = Toplevel(self)  # creates a new window
         Scrape.new_window(self)  # runs the new_window function
 
+    # button to run search reddit
+    # @param self - holds the self functionality of the class
+
     def search(self):
 
         tk.Button(text="Reddit", command=lambda: Scrape.checker(self,
-                                                                'https://old.reddit.com/')).pack()  # the button to run the entire program
+                                                                'https://old.reddit.com/')).pack()  # the button to
+        # run the entire program
 
 
 # main
